@@ -15,17 +15,23 @@ class Area {//létrehozunk egy osztályt
      * @param {string} className - amit létre szeretnénk hozni pl 'table'
      */
     constructor(className) { // konstruktor, kap egy class nevet
-        let containsDiv = document.querySelector('.containeroop'); // megnézi van-e már ilyen nevű container
+        const container = this.#getContainerDiv(); // itt hívjuk meg a privát metódust amit egy változóban tárolunk el
+        this.#div = document.createElement('div'); // létrehoz egy új divet a kapott class-hoz
+        this.#div.className = className; // beállítja a class nevet amit paraméterként kapott
+        container.appendChild(this.#div); // berakja az új divet a containeroop divbe
+    }
 
+    /**
+     * @returns {HTMLElement} containsDiv elemmel tér vissza
+     */
+    #getContainerDiv(){
+        let containsDiv = document.querySelector('.containeroop'); // megnézi van-e már ilyen nevű container
         if (!containsDiv) { // ha nincs ilyen, akkor csinál egyet
             containsDiv = document.createElement('div'); // létrehoz egy új divet
             containsDiv.className = 'containeroop'; // beállítja a class nevét
             document.body.appendChild(containsDiv); // hozzáadja a bodyhoz
         }
-
-        this.#div = document.createElement('div'); // létrehoz egy új divet a kapott class-hoz
-        this.#div.className = className; // beállítja a class nevet amit paraméterként kapott
-        containsDiv.appendChild(this.#div); // berakja az új divet a containeroop divbe
+        return containsDiv; // visszatérünk a containsDivvel
     }
 }
 
@@ -36,7 +42,13 @@ class Table extends Area { // létrehozunk egy Table nevű osztályt, ami az Are
      */
     constructor(cssClass){ // konstruktor, kap egy css class nevet
         super(cssClass); // meghívjuk az Area osztály konstruktorát vele
-        
+        const tabla = this.#makeTabla(); // csinálunk egy table elemet
+    }
+
+    /**
+     * @returns {HTMLElement} tbody elem
+     */
+    #makeTabla(){ // létrehozunk egy privát függvényt
         const table = document.createElement('table'); // csinálunk egy table elemet
         this.div.appendChild(table); // hozzáadjuk a divhez amit az Area hozott létre
 
@@ -55,24 +67,20 @@ class Table extends Area { // létrehozunk egy Table nevű osztályt, ami az Are
         
         const tbody = document.createElement('tbody'); // csinálunk egy üres tbody részt is
         table.appendChild(tbody); // hozzáadjuk a table-hez
+        return tbody; // visszaadjuk a tbodyt
     }
 }
 
 class Form extends Area { // Form nevű osztály, amely az Area osztályból öröklődik
     /**
      * @param {string} cssClass 
+     * @param {{fieldid:string,fieldLabel:string}[]} mezoLista
      */
-    constructor(cssClass) { // konstruktor, megkapja a css osztály nevét
+    constructor(cssClass, mezoLista) { // konstruktor, megkapja a css osztály nevét
         super(cssClass); // meghívja az Area osztály konstruktorát a cssClass paraméterrel
 
         const urlapElem = document.createElement('form'); // létrehozunk egy <form> HTML elemet
         this.div.appendChild(urlapElem); // a létrehozott form-ot hozzáadjuk a div-hez, amit az Area osztályban hoztunk létre
-
-        const mezoLista = [ // egy tömb, benne objektumokkal
-            { fieldid: 'szerzo', fieldLabel: 'Szerző' }, // elso mezo id, felirat
-            { fieldid: 'mufaj', fieldLabel: 'Műfaj' }, // masodik mezo id, felirat
-            { fieldid: 'cim', fieldLabel: 'cím' } // harmadik mezo id, felirat
-        ];
 
         for (const mezoObjektum of mezoLista) { // végigmegyünk minden mező objektumon a tömbben
             const mezoDiv = makeDiv('field'); // létrehozunk egy div-et a 'field' class névvel 

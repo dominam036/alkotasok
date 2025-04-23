@@ -38,13 +38,13 @@ const urlapElem = document.createElement('form'); // letrehoz egy form elemet
 formDiv.appendChild(urlapElem); // hozzáadja a formDiv-hez
 
 // mezők adatai: id és felirat szöveg
-const mezoLista = [ // egy tömb, benne objektumokkal
+const mezoListA = [ // egy tömb, benne objektumokkal
     { fieldid: 'szerzo', fieldLabel: 'Szerző' }, // elso mezo id, felirat
     { fieldid: 'mufaj', fieldLabel: 'Műfaj' }, // masodik mezo id, felirat
     { fieldid: 'cim', fieldLabel: 'cím' } // harmadik mezo id, felirat
 ];
 
-for (const mezoObjektum of mezoLista) { // végigmegyünk minden mezőn
+for (const mezoObjektum of mezoListA) { // végigmegyünk minden mezőn
     const mezoDiv = makeDiv('field'); // field class-hoz tartozó div létrehozasa
     urlapElem.appendChild(mezoDiv); // hozzaadas az urlaphoz
 
