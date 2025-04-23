@@ -33,5 +33,34 @@ simaTable.appendChild(tbody); // berakjuk a table-be
 
 const formDiv = makeDiv('form'); // form divet is csinálunk
 
+const urlapElem = document.createElement('form'); // letrehoz egy form elemet
+formDiv.appendChild(urlapElem); // hozzáadja a formDiv-hez
+
+// mezők adatai: id és felirat szöveg
+const mezoLista = [ // egy tömb, benne objektumokkal
+    { fieldid: 'szerzo', fieldLabel: 'Szerző' }, // elso mezo id, felirat
+    { fieldid: 'mufaj', fieldLabel: 'Műfaj' }, // masodik mezo id, felirat
+    { fieldid: 'cim', fieldLabel: 'cím' } // harmadik mezo id, felirat
+];
+
+for (const mezoObjektum of mezoLista) { // végigmegyünk minden mezőn
+    const mezoDiv = makeDiv('field'); // field class-hoz tartozó div létrehozasa
+    urlapElem.appendChild(mezoDiv); // hozzaadas az urlaphoz
+
+    const label = document.createElement('label'); // létrehozunk egy cimket (label)
+    label.htmlFor = mezoObjektum.fieldid; // beallitjuk hogy melyik inputhoz tartozik
+    label.textContent = mezoObjektum.fieldLabel; // beállitjuk a cimke szövegét
+    mezoDiv.appendChild(label); // hozzáadjuk a cimket a field divhez
+
+    const input = document.createElement('input'); // létrehozunk egy input mezot
+    input.id = mezoObjektum.fieldid; // beállitjuk az id-t
+    mezoDiv.appendChild(document.createElement('br')); // sortörés beszurása
+    mezoDiv.appendChild(input); // input hozzáadasa a field divhez
+}
+
+const hozzaadasGomb = document.createElement('button'); // letrehozunk egy gombot
+hozzaadasGomb.textContent = 'Hozzáadás'; // beállitjuk a gomb szöveget
+urlapElem.appendChild(hozzaadasGomb); // hozzáadjuk az urlaphoz
+
 containerDiv.appendChild(tableDiv); // belerakjuk a table divet a containerbe
 containerDiv.appendChild(formDiv); // aztán berakjuk a form divet is
