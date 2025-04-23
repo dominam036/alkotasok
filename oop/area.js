@@ -1,20 +1,33 @@
 class Area {//létrehozunk egy osztályt
     /**
-     * @param {HTMLDivElement}
+     * @type {HTMLDivElement}
      */
     #div; //privát változó amit csak osztályon belül látni
 
+    /**
+     * @type {Manager}
+     */
+    #manager;
     /**
      * @returns {HTMLDivElement}
      */
     get div(){// getter metódus hogy el lehessen érni a privát div-et
         return this.#div;// visszaadja a #div értékét
     }
+
+    /**
+     * @returns {Manager} 
+     */
+    get manager(){ // getter metódus hogy el lehessen érni a privát managert-et
+        return this.#manager; // visszaadja a #manager értékét
+    }
     
     /**
      * @param {string} className - amit létre szeretnénk hozni pl 'table'
+     * @param {Manager} manager
      */
-    constructor(className) { // konstruktor, kap egy class nevet
+    constructor(className, manager) { // konstruktor, kap egy class nevet
+        this.#manager = manager; // beállítjuk a privát #manager változót a kapott értékre
         const container = this.#getContainerDiv(); // itt hívjuk meg a privát metódust amit egy változóban tárolunk el
         this.#div = document.createElement('div'); // létrehoz egy új divet a kapott class-hoz
         this.#div.className = className; // beállítja a class nevet amit paraméterként kapott
@@ -39,10 +52,28 @@ class Table extends Area { // létrehozunk egy Table nevű osztályt, ami az Are
     /**
      * 
      * @param {string} cssClass megadjuk kívülről amit kreálni szeretnénk vele
+     * @param {Manager} manager
      */
-    constructor(cssClass){ // konstruktor, kap egy css class nevet
-        super(cssClass); // meghívjuk az Area osztály konstruktorát vele
+    constructor(cssClass, manager){ // konstruktor, kap egy css class nevet
+        super(cssClass, manager); // meghívjuk az Area osztály konstruktorát vele
         const tabla = this.#makeTabla(); // csinálunk egy table elemet
+
+        this.manager.setaddSzerzoCallback((adatok) => { // arrow function 
+            const tbRow = document.createElement('tr'); // csinálunk egy új sort a táblába
+            tabla.appendChild(tbRow); // belerakjuk a tbody-be amivel a #makeTabla metodus tér vissza
+        
+            const szerzoCell = document.createElement('td'); // szerzőnek nek létrehozunk egy cellát
+            szerzoCell.textContent = adatok.szerzo; // cella szövegébe a szerző
+            tbRow.appendChild(szerzoCell); // hozzáadjuk a sorhoz
+        
+            const mufajCell = document.createElement('td'); // mufaj cella
+            mufajCell.textContent = adatok.mufaj; // kiírjuk a beírt műfajt
+            tbRow.appendChild(mufajCell); // hozzáadjuk a sorhoz
+            
+            const cimCell = document.createElement('td'); // cim cella létrehozása
+            cimCell.textContent = adatok.cim; // szövegbe az cim
+            tbRow.appendChild(cimCell); // hozzáadjuk a sorhoz
+        })
     }
 
     /**
@@ -75,9 +106,10 @@ class Form extends Area { // Form nevű osztály, amely az Area osztályból ör
     /**
      * @param {string} cssClass 
      * @param {{fieldid:string,fieldLabel:string}[]} mezoLista
+     * @param {Manager} manager
      */
-    constructor(cssClass, mezoLista) { // konstruktor, megkapja a css osztály nevét
-        super(cssClass); // meghívja az Area osztály konstruktorát a cssClass paraméterrel
+    constructor(cssClass, mezoLista, manager) { // konstruktor, megkapja a css osztály nevét, egy tömböt és a managert
+        super(cssClass, manager); // meghívja az Area osztály konstruktorát a cssClass paraméterrel
 
         const urlapElem = document.createElement('form'); // létrehozunk egy <form> HTML elemet
         this.div.appendChild(urlapElem); // a létrehozott form-ot hozzáadjuk a div-hez, amit az Area osztályban hoztunk létre
@@ -100,5 +132,19 @@ class Form extends Area { // Form nevű osztály, amely az Area osztályból ör
         const hozzaadasGomb = document.createElement('button'); // létrehozunk egy button gomb elemet
         hozzaadasGomb.textContent = 'hozzáadás'; // beállítjuk a gomb feliratát
         urlapElem.appendChild(hozzaadasGomb); // a gombot hozzáadjuk az űrlaphoz
+
+        urlapElem.addEventListener('submit', (e)=> { // eseménykezelő ami a gomb lenyomására aktiválódik
+            e.preventDefault(); // megakadályozza az alapértelmezett viselkedést
+            const inputFieldList = e.target.querySelectorAll('input'); // lekéri az összes input mezőt
+            const valueObject = {}; // létrehoz egy üres objektumot
+        
+            for(const inputField of inputFieldList){ // bejárjuk a inputFieldListet
+                valueObject[inputField.id] = inputField.value; // minden input id alapján hozzáadja az értéket az objektumhoz
+            }
+        
+            const szerzo = new Adat(valueObject.szerzo, valueObject.mufaj, valueObject.cim); // új adat objektumot hoz létre a beírt értékekkel
+            this.manager.addSzerzo(szerzo); // hozzáadja az adatot a managerhez
+        });
+        
     }
 }
