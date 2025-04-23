@@ -1,3 +1,4 @@
+const array = []; // létrehozunk egy array tömböt
 /**
  * @param {string} className - a div elem amit megadunk neki kívülről
  * @returns {HTMLElement} a div elem amit létrehozott 
@@ -61,6 +62,32 @@ for (const mezoObjektum of mezoLista) { // végigmegyünk minden mezőn
 const hozzaadasGomb = document.createElement('button'); // letrehozunk egy gombot
 hozzaadasGomb.textContent = 'Hozzáadás'; // beállitjuk a gomb szöveget
 urlapElem.appendChild(hozzaadasGomb); // hozzáadjuk az urlaphoz
+
+urlapElem.addEventListener('submit', (e) => { // eseményfigyelő a form beküldésére 
+    e.preventDefault(); // megakadályozza az alapértelmezett működést (pl újratöltést)
+    const valueObject = {}; // létrehozunk egy üres objektumot, amibe az inputok értékei kerülnek
+    const bemenetiMezok = e.target.querySelectorAll('input'); // lekérjük az összes input mezőt az űrlapon belül
+
+    for (const mezo of bemenetiMezok) { // végigmegyünk az összes input mezőn
+        valueObject[mezo.id] = mezo.value; // az objektumba kulcs-érték párokat mentünk 
+    }
+    array.push(valueObject); // elmentjük az értékeket az array nevű tömbbe 
+
+    const tbRow = document.createElement('tr'); // létrehozunk egy új sort a táblázatba
+    tbody.appendChild(tbRow); // hozzáadjuk a sort a táblázat törzséhez (tbody)
+
+    const szerzo = document.createElement('td'); // új cella a szerző mezőhöz
+    szerzo.textContent = valueObject.szerzo; // a cellába a szerző értéke kerül
+    tbRow.appendChild(szerzo); // cella hozzáadása a sorhoz
+
+    const mufaj = document.createElement('td'); // új cella a műfaj mezőhöz
+    mufaj.textContent = valueObject.mufaj; // a cellába a műfaj értéke kerül
+    tbRow.appendChild(mufaj); // cella hozzáadása a sorhoz
+
+    const cim = document.createElement('td'); // új cella a cím mezőhöz
+    cim.textContent = valueObject.cim; // a cellába a cím értéke kerül
+    tbRow.appendChild(cim); // cella hozzáadása a sorhoz
+});
 
 containerDiv.appendChild(tableDiv); // belerakjuk a table divet a containerbe
 containerDiv.appendChild(formDiv); // aztán berakjuk a form divet is
