@@ -249,11 +249,26 @@ const szurtFilter = (container, tableBody, muArray) => { // létrehoz egy szűr�
 
         const rendezettArray = [...muArray]; // másolatot készít az eredeti tömbről
 
-        if (filterKey !== '') { // csak akkor rendez ha a mező ki van választva
-            rendezettArray.sort((a, b) => a[filterKey].localeCompare(b[filterKey])); // betűrendbe állítja a kiválasztott mező alapján
+        if (filterKey === '') {
+            tableBody.innerHTML = ''; // Törli a táblázat tartalmát
+            for (const elem of rendezettArray) { // végigmegy a rendezett tömb elemein
+                addRow(elem, tableBody); // hozzáad egy sort a táblázathoz az aktuális elemből
+            }
+        } else {
+            const n = rendezettArray.length; // tömb hosszának lekérése
+            for (let i = 0; i < n - 1; i++) { // külső ciklus a teljes tömb hosszáig
+                for (let j = 0; j < n - i - 1; j++) { // belső ciklus az aktuális résztömb hosszáig
+                    if (rendezettArray[j][filterKey].toLowerCase().localeCompare(rendezettArray[j + 1][filterKey].toLowerCase()) > 0) { 
+                        // összehasonlítja a két elemet localeCompare segítségével
+                        const temp = rendezettArray[j]; // cseréljük az elemeket ha az if teljesül
+                        rendezettArray[j] = rendezettArray[j + 1]; // cseréljük az elemeket ha az if teljesül
+                        rendezettArray[j + 1] = temp; // cseréljük az elemeket ha az if teljesül
+                    }
+                }
+            }
         }
 
-        tableBody.innerHTML = ''; // kiüríti a táblázat jelenlegi tartalmát
+        tableBody.innerHTML = ''; // törli a táblázat tartalmát
 
         for (const elem of rendezettArray) { // végigmegy a rendezett tömb elemein
             addRow(elem, tableBody); // hozzáad egy sort a táblázathoz az aktuális elemből
