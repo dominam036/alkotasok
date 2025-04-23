@@ -58,22 +58,32 @@ class Table extends Area { // létrehozunk egy Table nevű osztályt, ami az Are
         super(cssClass, manager); // meghívjuk az Area osztály konstruktorát vele
         const tabla = this.#makeTabla(); // csinálunk egy table elemet
 
-        this.manager.setaddSzerzoCallback((adatok) => { // arrow function 
-            const tbRow = document.createElement('tr'); // csinálunk egy új sort a táblába
-            tabla.appendChild(tbRow); // belerakjuk a tbody-be amivel a #makeTabla metodus tér vissza
-        
-            const szerzoCell = document.createElement('td'); // szerzőnek nek létrehozunk egy cellát
-            szerzoCell.textContent = adatok.szerzo; // cella szövegébe a szerző
-            tbRow.appendChild(szerzoCell); // hozzáadjuk a sorhoz
-        
-            const mufajCell = document.createElement('td'); // mufaj cella
-            mufajCell.textContent = adatok.mufaj; // kiírjuk a beírt műfajt
-            tbRow.appendChild(mufajCell); // hozzáadjuk a sorhoz
-            
-            const cimCell = document.createElement('td'); // cim cella létrehozása
-            cimCell.textContent = adatok.cim; // szövegbe az cim
-            tbRow.appendChild(cimCell); // hozzáadjuk a sorhoz
+        this.manager.setaddSzerzoCallback((mu) => { // arrow function 
+            this.#createMuRow(mu, tabla);
         })
+
+        this.manager.setRenderTableCallback((array) => { // callback függvény beállítása a táblázat újrarendereléséhez
+            tbody.innerHTML = ''; // táblázat kiürítése
+            for (const mu of array) { // végigmegyünk az művek tömbjén
+                this.#createMuRow(mu, tbody); // új sorokat hozunk létre az művek alapján
+            }
+        });
+    }
+    #createMuRow(mu, tableBody){
+        const tbRow = document.createElement('tr'); // csinálunk egy új sort a táblába
+        tableBody.appendChild(tbRow); // belerakjuk a tbody-be amivel a #makeTabla metodus tér vissza
+    
+        const szerzoCell = document.createElement('td'); // szerzőnek nek létrehozunk egy cellát
+        szerzoCell.textContent = mu.szerzo; // cella szövegébe a szerző
+        tbRow.appendChild(szerzoCell); // hozzáadjuk a sorhoz
+    
+        const cimCell = document.createElement('td'); // cim cella létrehozása
+        cimCell.textContent = mu.cim; // szövegbe az cim
+        tbRow.appendChild(cimCell); // hozzáadjuk a sorhoz
+
+        const mufajCell = document.createElement('td'); // mufaj cella
+        mufajCell.textContent = mu.mufaj; // kiírjuk a beírt műfajt
+        tbRow.appendChild(mufajCell); // hozzáadjuk a sorhoz
     }
 
     /**

@@ -14,6 +14,8 @@ class Manager { // egy Manager nevű osztály, kezeli az adatokat
      */
     #addSzerzoCallback; // privát callback függvény, amit meghívunk új adat hozzáadásánál
 
+    #renderTableCallback;
+
     constructor() { // konstruktor, ami létrehozza az objektumot
         this.#array = []; // inicializáljuk a privát tömböt üresen
     }
@@ -25,12 +27,34 @@ class Manager { // egy Manager nevű osztály, kezeli az adatokat
         this.#addSzerzoCallback = callback; // eltároljuk a megadott callbacket privát változóban
     }
 
+    setRenderTableCallback(callback){
+        this.#renderTableCallback = callback;
+    }
+
+    /**
+     * Visszaadja az adatok tömbjét.
+     * @returns {Adat[]}
+     */
+    getArray() {
+        return [...this.#array]; // Másolatot ad vissza
+    }
+
     /**
      * @param {Adat} adat 
      */
     addSzerzo(szerzo) { // új adatot adunk a listához
         this.#array.push(szerzo); // belerakjuk az új adatot a privát tömbbe
         this.#addSzerzoCallback(szerzo); // meghívjuk a callbacket az új adattal
+    }
+
+    filter(callback){
+        const eredmeny = []
+        for(const mu of this.#array){
+            if(callback(mu)){
+                eredmeny.push(mu)
+            }
+        }
+        this.#renderTableCallback(eredmeny);
     }
 
     /**
