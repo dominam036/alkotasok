@@ -46,11 +46,21 @@ class Area {//létrehozunk egy osztályt
         }
         return containsDiv; // visszatérünk a containsDivvel
     }
+    /**
+     * 
+     * @param {string} label 
+     * @returns {HTMLButtonElement}
+     */
+    createGomb(label){ // létrehoz egy gomb elemet
+        const gomb = document.createElement('button'); // létrehoz egy button elemet
+        gomb.type = 'submit'; // beállítja a gomb típusát submit értékre
+        gomb.textContent = label; // beállítja a gomb szövegét a kapott label értékére
+        return gomb // visszatér a létrehozott gomb elemmel
+    }    
 }
 
 class Table extends Area { // létrehozunk egy Table nevű osztályt, ami az Area ősosztályból öröklődik
     /**
-     * 
      * @param {string} cssClass megadjuk kívülről amit kreálni szeretnénk vele
      * @param {Manager} manager
      */
@@ -58,33 +68,57 @@ class Table extends Area { // létrehozunk egy Table nevű osztályt, ami az Are
         super(cssClass, manager); // meghívjuk az Area osztály konstruktorát vele
         const tbody = this.#makeTabla(); // csinálunk egy tbody elemet
 
-        this.manager.setaddSzerzoCallback((mu) => { // arrow function 
-            this.#createMuRow(mu, tbody); // meghívjuk azt a függvényt ami egy sort csinál
-        })
+        this.manager.setaddSzerzoCallback(this.#addSzerzoCallback(tbody)); // beállítja az add szerzo callbacket 
+        this.manager.setRenderTableCallback(this.#renderTableCallback(tbody)); // beállítja a render table callbacket 
+    }
 
-        this.manager.setRenderTableCallback((array) => { // callback függvény beállítása a táblázat újrarendereléséhez
+    /**
+     * @param {HTMLElement} tbody megkapja a tbody-t
+     * @returns {renderTableCallback}
+     */
+    #renderTableCallback(tbody){ // táblázat újrarenderelése
+        return (array) => { // callback függvény beállítása a táblázat újrarendereléséhez
             tbody.innerHTML = ''; // táblázat kiürítése
             for (const mu of array) { // végigmegyünk az művek tömbjén
                 this.#createMuRow(mu, tbody); // új sorokat hozunk létre az művek alapján
             }
-        });
+        };
     }
+    /**
+     * @param {HTMLElement} tbody megkapja a tbody-t
+     * @returns {addSzerzoCallback}
+     */
+    #addSzerzoCallback(tbody){ // új sor hozzáadása a táblázathoz
+        return (mu) => { // arrow function 
+            this.#createMuRow(mu, tbody); // meghívjuk azt a függvényt ami egy sort csinál
+        }
+    }
+
+    /**
+     * @param {Adat} mu az aktualis sor adatai
+     * @param {string} tableBody a táblázat tableBody eleme
+     */
     #createMuRow(mu, tableBody){ // privát függvény létrehozása ami egy sort csinál az adatokkal
         const tbRow = document.createElement('tr'); // csinálunk egy új sort a táblába
-        tableBody.appendChild(tbRow); // belerakjuk a tbody-be amivel a #makeTabla metodus tér vissza
-    
-        const szerzoCell = document.createElement('td'); // szerzőnek nek létrehozunk egy cellát
-        szerzoCell.textContent = mu.szerzo; // cella szövegébe a szerző
-        tbRow.appendChild(szerzoCell); // hozzáadjuk a sorhoz
-    
-        const cimCell = document.createElement('td'); // cim cella létrehozása
-        cimCell.textContent = mu.cim; // szövegbe az cim
-        tbRow.appendChild(cimCell); // hozzáadjuk a sorhoz
 
-        const mufajCell = document.createElement('td'); // mufaj cella
-        mufajCell.textContent = mu.mufaj; // kiírjuk a beírt műfajt
-        tbRow.appendChild(mufajCell); // hozzáadjuk a sorhoz
+        this.#createCella(tbRow, mu.szerzo) // hozzáadjuk a szerzo oszlop adatát
+        this.#createCella(tbRow, mu.cim) // hozzáadjuk a cim oszlop adatát
+        this.#createCella(tbRow, mu.mufaj) // hozzáadjuk a mufaj oszlop adatát
+
+        tableBody.appendChild(tbRow); // belerakjuk a tbody-be amivel a #makeTable metodus tér vissza
     }
+
+    /**
+     * @param {string} sor az amihez a sort adjuk
+     * @param {string} textContent a cella tartalma
+     * @param {string} [type="td"] a cella típusa
+     */
+    #createCella(sor, textContent, type='td'){ // létrehoz egy cellát az adott típus alapján alapértelmezetten td típust használva
+        const cella = document.createElement(type); // létrehozza a cellát az adott típus alapján
+        cella.textContent = textContent; // beállítja a cella szövegét
+        sor.appendChild(cella); // hozzáadja a cellát a megadott sorhoz
+    }
+    
 
     /**
      * @returns {HTMLElement} tbody elem
@@ -101,9 +135,7 @@ class Table extends Area { // létrehozunk egy Table nevű osztályt, ami az Are
 
         const fejlecNevek = ['Szerző', 'cim', 'műfaj']; // fejléc mezők szövegeit tároljuk itt egy tömbben
         for(const fejlec of fejlecNevek){ // végigmegyünk a tömb elemein
-            const theadCella = document.createElement('th'); // csinálunk egy th elemet
-            theadCella.innerText = fejlec; // beleírjuk a szöveget
-            theadRow.appendChild(theadCella); // hozzáadjuk a sort a fejlécbe
+            this.#createCella(theadRow, fejlec, 'th');
         }
         
         const tbody = document.createElement('tbody'); // csinálunk egy üres tbody részt is
@@ -125,8 +157,16 @@ class Form extends Area { // Form nevű osztály, amely az Area osztályból ör
     constructor(cssClass, mezoLista, manager) { // konstruktor, megkapja a css osztály nevét, egy tömböt és a managert
         super(cssClass, manager); // meghívja az Area osztály konstruktorát a cssClass paraméterrel
         this.#tombInput = []; // a tombInputot inicializáljuk
-        const urlapElem = document.createElement('form'); // létrehozunk egy <form> HTML elemet
-        this.div.appendChild(urlapElem); // a létrehozott form-ot hozzáadjuk a div-hez, amit az Area osztályban hoztunk létre
+        const urlapElem = this.#formLetrehozas(mezoLista); // létrehozunk egy <form> HTML elemet
+        urlapElem.addEventListener('submit', this.#formEsemenyKezelo()); // addeventlistener meghívása
+    }
+    /**
+     * @param {{fieldid:string,fieldLabel:string}[]} mezoLista 
+     * @returns {HTMLElement} 
+     */ 
+    #formLetrehozas(mezoLista){ // létrehoz egy form HTML elemet a mezőkkel és a gombbal
+        const urlapElem = document.createElement('form'); // form html elem létrehozása
+        this.div.appendChild(urlapElem); // az uralapElem-et belerakjuk a fő div-be
 
         for (const mezoObjektum of mezoLista) { // végigmegyünk minden mező objektumon a tömbben
             const formField = new FormField(mezoObjektum.fieldid, mezoObjektum.fieldLabel); // létrehozunk egy új FormField objektumot az adott mező alapján
@@ -134,29 +174,49 @@ class Form extends Area { // Form nevű osztály, amely az Area osztályból ör
             urlapElem.appendChild(formField.getDiv()); // hozzáadjuk a mezőhöz tartozó HTML elemeket a form-hoz
         }
 
-        const hozzaadasGomb = document.createElement('button'); // létrehozunk egy button gomb elemet
-        hozzaadasGomb.textContent = 'hozzáadás'; // beállítjuk a gomb feliratát
-        urlapElem.appendChild(hozzaadasGomb); // a gombot hozzáadjuk az űrlaphoz
-
-        urlapElem.addEventListener('submit', (e)=> { // eseménykezelő ami a gomb lenyomására aktiválódik
+        const hozzaadasGomb = this.createGomb('Hozzáadás'); // létrehozunk egy button gomb elemet
+        urlapElem.appendChild(hozzaadasGomb); // formhoz adjuk a gombot
+        
+        return urlapElem; // visszatérünk a form elemmel
+    }
+    /**
+     * @returns {EventListener} az event listener függvénnyel tér vissza
+     */
+    #formEsemenyKezelo(){ // létrehoz egy event listener-t a form submit eseményére
+        return (e)=> { // eseménykezelő ami a gomb lenyomására aktiválódik
             e.preventDefault(); // megakadályozza az alapértelmezett viselkedést
-            const valueObject = {}; // létrehoz egy üres objektumot
-            let validE = true; // validE true lesz alapból
-            for(const errorField of this.#tombInput){ // vegigmegyünk az összes FormField mezőn
-                errorField.error = ''; // töröljük az esetlegesen korabban megjelenített hibaüzenetet
-                if(errorField.value === ''){ // ha az adott mező üres
-                    errorField.error = 'Add meg ezt is!'; // eállítjuk a hibaüzenetet a mező alá
-                    validE = false; // az validE-t hamisra állítjuk
-                }
-                valueObject[errorField.id] = errorField.value; // Az objektumba mentjük a mező azonosítója alapján az értéket
-            }
-
-            if(validE){ // ha true maradt
-                const szerzo = new Adat(valueObject.szerzo, valueObject.mufaj, valueObject.cim); // új adat objektumot hoz létre a beírt értékekkel
+            if(this.#mezoValidalas()){ // ha trueval tér vissz a függvény
+                const valueObject = this.#objektumErtek(); // lekérjük a mezők értékeit
+                const szerzo = new Adat(valueObject.szerzo, valueObject.cim, valueObject.mufaj); // új adat objektumot hoz létre a beírt értékekkel
                 this.manager.addSzerzo(szerzo); // hozzáadja az adatot a managerhez
             }
-        });
+        };
     }
+    /**
+     * @returns {boolean} true hogyha minden mező kitöltött
+     */
+    #mezoValidalas(){ // ellenőrzi, hogy minden mező ki van-e töltve
+        let validE = true; // validE true lesz alapból
+        for(const errorField of this.#tombInput){ // vegigmegyünk az összes FormField mezőn
+            errorField.error = ''; // töröljük az esetlegesen korabban megjelenített hibaüzenetet
+            if(errorField.value === ''){ // ha az adott mező üres
+                errorField.error = 'Add meg ezt is!'; // beállítjuk a hibaüzenetet a mező alá
+                validE = false; // az validE-t hamisra állítjuk
+            }
+        }
+        return validE; // visszatérünk egy true/falseal
+    }
+    /**
+     * @returns {{szerzo:string, cim: string, mufaj:string}} az objektum ami a mezoknek tartalmazza az értékeit
+     */
+    #objektumErtek(){ // mezők értéke egy objektumba
+        const valueObject = {}; // létrehoz egy üres objektumot
+        for(const objekErtek of this.#tombInput){ // vegigmegyünk az összes FormField mezőn
+        valueObject[objekErtek.id] = objekErtek.value; // Az objektumba mentjük a mező azonosítója alapján az értéket
+        }
+        return valueObject; // objektum visszaadasa
+    }
+    
 }
 
 class UploadDownload extends Area { // létrehozunk egy upload nevű osztályt ami örökli az area osztályt
@@ -172,8 +232,34 @@ class UploadDownload extends Area { // létrehozunk egy upload nevű osztályt a
         input.id = 'fileinput' // beállítjuk az id-t hogy fileinput legyen
         input.type = 'file' // beállítjuk a típust fájl feltöltésre
         this.div.appendChild(input) // hozzáadjuk a divhez amit az area osztályból örököltünk
+        input.addEventListener('change', this.#fajlFeltoltesEventListener()); // eseménykezelő a fájlfeltöltéshez
 
-        input.addEventListener('change', (e) => { // amikor fájlt választanak ki akkor ez lefut
+        const letoltesGomb = this.createGomb('Letöltés'); // csinálunk egy gombot
+        this.div.appendChild(letoltesGomb); // hozzáadjuk a containerhez a gombot
+        letoltesGomb.addEventListener('click', this.#letoltesGombEventListener()); // eseménykezelő a fájl letöltéshez
+    }
+
+    /**
+     * 
+     * @returns {EventListener}
+     */
+    #letoltesGombEventListener(){ // privát metódus a letöltési eseményhez
+        return () => { // ezzel térünk vissza
+            const link = document.createElement('a'); // csinálunk egy <a> elemet ami majd letöltésre lesz
+            const tartalom = this.manager.generateOutputString(); // lekérjük a managerből a letöltendő szöveget
+            const file = new Blob([tartalom]) // csinálunk egy blob fájlt a szövegből
+            link.href = URL.createObjectURL(file); // generálunk egy ideiglenes fájlelérési linket
+            link.download = 'newdata.csv' // beállítjuk hogy milyen néven mentse le a fájlt
+            link.click(); // elindítjuk a letöltést
+            URL.revokeObjectURL(link.href); // töröljük az ideiglenes linket hogy ne szemeteljen
+        }
+    } 
+    /**
+     * 
+     * @returns {EventListener}
+     */
+    #fajlFeltoltesEventListener(){ // privát metódus a fájlfeltöltéshez
+        return (e) => { // amikor fájlt választanak ki akkor ez lefut
             const file = e.target.files[0] // lekéri a kiválasztott fájlt
             const beolvaso = new FileReader() // létrehozunk egy új fájlolvasót
 
@@ -190,21 +276,7 @@ class UploadDownload extends Area { // létrehozunk egy upload nevű osztályt a
                 }
             }
             beolvaso.readAsText(file) // elindítjuk a fájl olvasását szövegként
-        })
-
-        const letoltesGomb = document.createElement('button'); // csinálunk egy gombot
-        letoltesGomb.textContent = 'Letöltés'; // beállítjuk a gomb szövegét hogy letöltés
-        this.div.appendChild(letoltesGomb); // hozzáadjuk a containerhez a gombot
-
-        letoltesGomb.addEventListener('click', () => { // ha rákattintanak a gombra ez lefut
-            const link = document.createElement('a'); // csinálunk egy <a> elemet ami majd letöltésre lesz
-            const tartalom = this.manager.generateOutputString(); // lekérjük a managerből a letöltendő szöveget
-            const file = new Blob([tartalom]) // csinálunk egy blob fájlt a szövegből
-            link.href = URL.createObjectURL(file); // generálunk egy ideiglenes fájlelérési linket
-            link.download = 'newdata.csv' // beállítjuk hogy milyen néven mentse le a fájlt
-            link.click(); // elindítjuk a letöltést
-            URL.revokeObjectURL(link.href); // töröljük az ideiglenes linket hogy ne szemeteljen
-        })
+        }
     }
 }
 

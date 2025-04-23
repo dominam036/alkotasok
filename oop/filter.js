@@ -20,14 +20,14 @@ class Filter extends Area {
             select.appendChild(optionElement); // hozzáadja az option elemet a legördülő menühöz
         }
 
-        const button = document.createElement('button'); // létrehoz egy gombot
-        button.innerText = 'Szűrés'; // beállítja a gomb szövegét
+        const button = this.createGomb('Szűrés') // létrehoz egy gombot
         szurtForm.appendChild(button); // hozzáadja a gombot a formhoz
 
         szurtForm.addEventListener('submit', (e) => { // eseményfigyelőt állít be a form elküldésére
             e.preventDefault(); // megakadályozza az alapértelmezett elküldési viselkedést
-
+            
             const filterKey = select.value; // lekéri a kiválasztott mező értékét
+        
             if (filterKey === '') { // ellenőrzi hogy a kiválasztott mező üres-e
                 this.manager.renderSima(); // ha üres megjeleníti az alapértelmezett táblázatot
             } else { // ha nem üres akkor rendezést végez
@@ -38,6 +38,6 @@ class Filter extends Area {
                     return false; // különben visszaadja hogy hamis
                 });
             }
-        });
+        });        
     }
 }

@@ -36,24 +36,16 @@ class Manager { // egy Manager nevű osztály, kezeli az adatokat
     }
 
     /**
-     * @param {function:void} callback 
+     * @param {addSzerzoCallback} callback 
      */
     setaddSzerzoCallback(callback) { // beállítjuk a callback függvényt kívülről
         this.#addSzerzoCallback = callback; // eltároljuk a megadott callbacket privát változóban
     }
     /**
-    * @param {Function} callback 
+    * @param {renderTableCallback} callback 
     */
     setRenderTableCallback(callback){
         this.#renderTableCallback = callback; // privát változóba tároljuk a callbacket
-    }
-
-    /**
-     * Visszaadja az adatok tömbjét.
-     * @returns {Adat[]}
-     */
-    getArray() {
-        return [...this.#array]; // Másolatot ad vissza
     }
 
     /**
@@ -64,29 +56,30 @@ class Manager { // egy Manager nevű osztály, kezeli az adatokat
         this.#addSzerzoCallback(szerzo); // meghívjuk a callbacket az új adattal
     }
 
-
     /**
      * @returns {string} letöltési szöveg
      */
     generateOutputString() { // a letöltéshez szükséges szöveget generaljuk itt
-        const tartalomTomb = ['szerző;műfaj;cím'] // létrehozunk egy tömböt fejléc sorral
+        const tartalomTomb = ['szerző;cím;műfaj'] // létrehozunk egy tömböt fejléc sorral
         
         for(const mu of this.#array){ // végigmegyünk az adatokon
-            tartalomTomb.push(`${mu.szerzo};${mu.mufaj};${mu.cim}`); // összefűzzük az adatokat és betoljuk a tömbbe
+            tartalomTomb.push(`${mu.szerzo};${mu.cim};${mu.mufaj}`); // összefűzzük az adatokat és betoljuk a tömbbe
         }
         return tartalomTomb.join('\n'); // a sorokat egy szöveggé fűzzük össze sortöréssel elválasztva
     }
 
-    sorbaRendezes() { // buborékrendezést végez a tömbön a megadott feltétel alapján
+    /**
+     * @param {nagyobbE} nagyobbe
+     */
+    sorbaRendezes(nagyobbe) { // buborékrendezést végez a tömbön a megadott feltétel alapján
         const rendezoArray = []; // létrehozunk egy új tömböt a rendezéshez
         for (const i of this.#array) { // végigmegyünk az eredeti tömb elemein
             rendezoArray.push(i); // az elemeket átmásoljuk a rendezoarray tömbbe
         }
-
+    
         for (let i = 0; i < rendezoArray.length - 1; i++) { // külső ciklus amely végigmegy a tömb elemein a rendezéshez
             for (let j = 0; j < rendezoArray.length - i - 1; j++) { // belső ciklus az aktuális résztömb hosszáig
-                if (rendezoArray[j].szerzo.localeCompare(rendezoArray[j + 1].szerzo) > 0) { 
-                    // összehasonlítja a két elem szerző mezőjét localeCompare segítségével
+                if (nagyobbe(rendezoArray[j], rendezoArray[j + 1])) { // meghívjuk a nagyobbe függvényt a két elem összehasonlítására
                     const temp = rendezoArray[j]; // ideiglenesen elmentjük az első elemet egy változóba
                     rendezoArray[j] = rendezoArray[j + 1]; // az első elem helyére a második kerül
                     rendezoArray[j + 1] = temp; // a második elem helyére az első kerül

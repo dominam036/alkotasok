@@ -3,8 +3,9 @@ const elvalaszto = document.createElement('hr'); // hogy a html-en egyszeruen me
 
 const mezoLista = [ // egy tömb, benne objektumokkal
     { fieldid: 'szerzo', fieldLabel: 'Szerző' }, // elso mezo id, felirat
-    { fieldid: 'mufaj', fieldLabel: 'Műfaj' }, // masodik mezo id, felirat
-    { fieldid: 'cim', fieldLabel: 'cím' } // harmadik mezo id, felirat
+    { fieldid: 'cim', fieldLabel: 'cím' }, // masodik mezo id, felirat
+    { fieldid: 'mufaj', fieldLabel: 'Műfaj' } // harmadik mezo id, felirat
+    
 ];
 const manager = new Manager(); // létrehozzunk egy manager osztálypéldányt
 const table = new Table('table', manager); // létrehozunk egy új 'Table' osztálypéldányt 

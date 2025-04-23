@@ -9,21 +9,6 @@ const makeDiv = (className) => { // csinál egy divet a megadott class névvel a
 }
 
 /**
- * 
- * @param {array[]} muArray 
- * @param {Function:boolean} callback 
- */
-const szures = (muArray, callback) => { // létrehozunk egy szures nevű függvényt ami egy tömböt és egy feltételvizsgáló függvényt kap paraméterként
-    const eredmeny = []; // létrehozunk egy üres tömböt amibe az eredményeket fogjuk tárolni
-    for(const element of muArray){ // végigmegyünk a bemeneti tömb minden elemén
-        if(callback(element)){ // ha a callback függvény igazat ad vissza az elemre
-            eredmeny.push(element); // akkor az elemet hozzáadjuk az eredmény tömbhöz
-        }
-    }
-    return eredmeny; // visszaadjuk az eredmény tömböt amely csak a megfelelő elemeket tartalmazza
-}
-
-/**
  * @param {function(HTMLElement):void} callback
  * @param {HTMLDivElement} container - az a div amelybe a táblázatot helyezzük
  */
@@ -58,7 +43,7 @@ const formDiv = makeDiv('form'); // form divet is csinálunk
 /**
  * @param {HTMLElement} tablebody
  * @param {HTMLDivElement} containerDiv 
- * @param {array[]} muArray
+ * @param {Mu[]} muArray
  */
 const createFileUploader =(tablebody, containerDiv, muArray) => { // filefeltöltést itt csináljuk
 const fileInput = document.createElement('input') // létrehozunk egy új input elemet
@@ -95,7 +80,7 @@ fileInput.addEventListener('change', (e) => { // esemény amikor fájlt választ
 /**
 * @param {HTMLElement} tableBody 
 * @param {HTMLElement} containerDiv
-* @param {array[]} array
+* @param {Mu[]} muArray
 */
 const createForm = (tableBody, containerDiv, muArray) => { // létrehozzuk a formot
     const urlapDiv = makeDiv('form'); // letrehoz egy form elemet
@@ -161,7 +146,7 @@ const createForm = (tableBody, containerDiv, muArray) => { // létrehozzuk a for
 }
 
 /**
- * @param {array} alkotas
+ * @param {Mu} alkotas
  * @param {HTMLTableSectionElement} tableBody
  */
 const addRow = (alkotas, tableBody) => { // sorokat hozunk létre
@@ -184,7 +169,7 @@ const addRow = (alkotas, tableBody) => { // sorokat hozunk létre
 
 /**
  * @param {HTMLElement} container
- * @param {array[]} muArray
+ * @param {Mu[]} muArray
  */
 const fajlLetoltes = (container, muArray) => { // fajlLetoltes fuggvény
     const letoltesGomb = document.createElement('button'); // csinálunk egy gombot
@@ -197,7 +182,7 @@ const fajlLetoltes = (container, muArray) => { // fajlLetoltes fuggvény
         const tartalomTomb = ['szerző;cím;műfaj'] // létrehozunk egy tömböt fejléc sorral
     
         for(const mu of muArray){ // végigmegyünk az adatokon
-            tartalomTomb.push(`${mu.szerzo};${mu.mufaj};${mu.cim}`); // összefűzzük az adatokat és betoljuk a tömbbe
+            tartalomTomb.push(`${mu.szerzo};${mu.cim};${mu.mufaj}`); // összefűzzük az adatokat és betoljuk a tömbbe
         }
     
         const tartalom = tartalomTomb.join('\n'); // a tömb elemeit összerakjuk egy hosszú szöveggé sortöréssel
@@ -213,7 +198,7 @@ const fajlLetoltes = (container, muArray) => { // fajlLetoltes fuggvény
 /**
  * @param {HTMLDivElement} container
  * @param {HTMLTableSectionElement} tableBody
- * @param {array[]} muArray
+ * @param {Mu[]} muArray
  */
 const szurtFilter = (container, tableBody, muArray) => { // létrehoz egy szűrési űrlapot és hozzáadja a megadott container elemhez
 
@@ -249,29 +234,27 @@ const szurtFilter = (container, tableBody, muArray) => { // létrehoz egy szűr�
 
         const rendezettArray = [...muArray]; // másolatot készít az eredeti tömbről
 
-        if (filterKey === '') {
-            tableBody.innerHTML = ''; // Törli a táblázat tartalmát
+        if (filterKey === ''){
+            tableBody.innerHTML = ''; // Törli a táblázat tartalmáts
             for (const elem of rendezettArray) { // végigmegy a rendezett tömb elemein
                 addRow(elem, tableBody); // hozzáad egy sort a táblázathoz az aktuális elemből
             }
-        } else {
-            const n = rendezettArray.length; // tömb hosszának lekérése
-            for (let i = 0; i < n - 1; i++) { // külső ciklus a teljes tömb hosszáig
-                for (let j = 0; j < n - i - 1; j++) { // belső ciklus az aktuális résztömb hosszáig
-                    if (rendezettArray[j][filterKey].toLowerCase().localeCompare(rendezettArray[j + 1][filterKey].toLowerCase()) > 0) { 
-                        // összehasonlítja a két elemet localeCompare segítségével
-                        const temp = rendezettArray[j]; // cseréljük az elemeket ha az if teljesül
-                        rendezettArray[j] = rendezettArray[j + 1]; // cseréljük az elemeket ha az if teljesül
-                        rendezettArray[j + 1] = temp; // cseréljük az elemeket ha az if teljesül
-                    }
+        }else{
+        const n = rendezettArray.length; // tömb hosszának lekérése
+        for (let i = 0; i < n - 1; i++) { // külső ciklus a teljes tömb hosszáig
+            for (let j = 0; j < n - i - 1; j++) { // belső ciklus az aktuális résztömb hosszáig
+                if (rendezettArray[j][filterKey].toLowerCase() > rendezettArray[j + 1][filterKey].toLowerCase()) { // osszehasonlítja a két elemet
+                    const temp = rendezettArray[j]; // cseréljük az elemeket ha az if teljesül
+                    rendezettArray[j] = rendezettArray[j + 1]; // cseréljük az elemeket ha az if teljesül
+                    rendezettArray[j + 1] = temp; // cseréljük az elemeket ha az if teljesül
                 }
             }
         }
-
         tableBody.innerHTML = ''; // törli a táblázat tartalmát
 
         for (const elem of rendezettArray) { // végigmegy a rendezett tömb elemein
             addRow(elem, tableBody); // hozzáad egy sort a táblázathoz az aktuális elemből
+        }
         }
     });
 }
