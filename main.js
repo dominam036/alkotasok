@@ -52,11 +52,16 @@ for (const mezoObjektum of mezoListA) { // végigmegyünk minden mezőn
     label.htmlFor = mezoObjektum.fieldid; // beallitjuk hogy melyik inputhoz tartozik
     label.textContent = mezoObjektum.fieldLabel; // beállitjuk a cimke szövegét
     mezoDiv.appendChild(label); // hozzáadjuk a cimket a field divhez
+    mezoDiv.appendChild(document.createElement('br')); // sortörés beszurása
 
     const input = document.createElement('input'); // létrehozunk egy input mezot
     input.id = mezoObjektum.fieldid; // beállitjuk az id-t
-    mezoDiv.appendChild(document.createElement('br')); // sortörés beszurása
     mezoDiv.appendChild(input); // input hozzáadasa a field divhez
+
+    mezoDiv.appendChild(document.createElement('br')); // sortörés beszurása
+    const hiba = document.createElement('span'); // csinalunk egy span elemet hiba üzenetnek
+    hiba.className = 'error'; // beállitjuk az osztályt hogy error legyen
+    mezoDiv.appendChild(hiba); // hozzáfűzzük a hiba üzenet span-t a mezohöz
 }
 
 const hozzaadasGomb = document.createElement('button'); // letrehozunk egy gombot
@@ -67,26 +72,40 @@ urlapElem.addEventListener('submit', (e) => { // eseményfigyelő a form beküld
     e.preventDefault(); // megakadályozza az alapértelmezett működést (pl újratöltést)
     const valueObject = {}; // létrehozunk egy üres objektumot, amibe az inputok értékei kerülnek
     const bemenetiMezok = e.target.querySelectorAll('input'); // lekérjük az összes input mezőt az űrlapon belül
+    let validE = true; // adunk a validE változónak egy kezdeti true értéket
 
     for (const mezo of bemenetiMezok) { // végigmegyünk az összes input mezőn
-        valueObject[mezo.id] = mezo.value; // az objektumba kulcs-érték párokat mentünk 
+        const error = mezo.parentElement.querySelector('.error'); // lekérjük az inputhoz tartozó hibaüzenet mezőt
+        if(!error){ // ha nincs ilyen mező
+            console.error('nincs errorfield'); // kiírjuk a hibát a konzolra
+            return; // megszakítjuk a függvény futását
+        }
+        error.textContent = ''; // ürítjük az esetleges korábbi hibaüzenetet
+        if(mezo.value === ''){ // ha nincs megadva érték
+            error.textContent = 'Add meg ezt is!!'; // beírjuk a hibaüzenetet
+            validE = false; // beállítjuk hogy nem valid a form
+        }
+        valueObject[mezo.id] = mezo.value; // az objektumba kulcs-érték párokat mentünk
+    }    
+    if(validE){ // hogyha true akkor lefut
+        array.push(valueObject); // elmentjük az értékeket az array nevű tömbbe 
+
+        const tbRow = document.createElement('tr'); // létrehozunk egy új sort a táblázatba
+        tbody.appendChild(tbRow); // hozzáadjuk a sort a táblázat törzséhez (tbody)
+
+        const szerzo = document.createElement('td'); // új cella a szerző mezőhöz
+        szerzo.textContent = valueObject.szerzo; // a cellába a szerző értéke kerül
+        tbRow.appendChild(szerzo); // cella hozzáadása a sorhoz
+
+        const mufaj = document.createElement('td'); // új cella a műfaj mezőhöz
+        mufaj.textContent = valueObject.mufaj; // a cellába a műfaj értéke kerül
+        tbRow.appendChild(mufaj); // cella hozzáadása a sorhoz
+
+        const cim = document.createElement('td'); // új cella a cím mezőhöz
+        cim.textContent = valueObject.cim; // a cellába a cím értéke kerül
+        tbRow.appendChild(cim); // cella hozzáadása a sorhoz 
     }
-    array.push(valueObject); // elmentjük az értékeket az array nevű tömbbe 
-
-    const tbRow = document.createElement('tr'); // létrehozunk egy új sort a táblázatba
-    tbody.appendChild(tbRow); // hozzáadjuk a sort a táblázat törzséhez (tbody)
-
-    const szerzo = document.createElement('td'); // új cella a szerző mezőhöz
-    szerzo.textContent = valueObject.szerzo; // a cellába a szerző értéke kerül
-    tbRow.appendChild(szerzo); // cella hozzáadása a sorhoz
-
-    const mufaj = document.createElement('td'); // új cella a műfaj mezőhöz
-    mufaj.textContent = valueObject.mufaj; // a cellába a műfaj értéke kerül
-    tbRow.appendChild(mufaj); // cella hozzáadása a sorhoz
-
-    const cim = document.createElement('td'); // új cella a cím mezőhöz
-    cim.textContent = valueObject.cim; // a cellába a cím értéke kerül
-    tbRow.appendChild(cim); // cella hozzáadása a sorhoz
+    
 });
 
 containerDiv.appendChild(tableDiv); // belerakjuk a table divet a containerbe
