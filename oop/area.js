@@ -149,7 +149,7 @@ class Form extends Area { // Form nevű osztály, amely az Area osztályból ör
     }
 }
 
-class Upload extends Area { // létrehozunk egy upload nevű osztályt ami örökli az area osztályt
+class UploadDownload extends Area { // létrehozunk egy upload nevű osztályt ami örökli az area osztályt
     /**
      * 
      * @param {string} cssClass 
@@ -180,6 +180,20 @@ class Upload extends Area { // létrehozunk egy upload nevű osztályt ami örö
                 }
             }
             beolvaso.readAsText(file) // elindítjuk a fájl olvasását szövegként
+        })
+
+        const letoltesGomb = document.createElement('button'); // csinálunk egy gombot
+        letoltesGomb.textContent = 'Letöltés'; // beállítjuk a gomb szövegét hogy letöltés
+        this.div.appendChild(letoltesGomb); // hozzáadjuk a containerhez a gombot
+
+        letoltesGomb.addEventListener('click', () => { // ha rákattintanak a gombra ez lefut
+            const link = document.createElement('a'); // csinálunk egy <a> elemet ami majd letöltésre lesz        
+            const tartalom = this.manager.generateOutputString(); // lekérjük a managerből a letöltendő szöveget
+            const file = new Blob([tartalom]) // csinálunk egy blob fájlt a szövegből
+            link.href = URL.createObjectURL(file); // generálunk egy ideiglenes fájlelérési linket
+            link.download = 'newdata.csv' // beállítjuk hogy milyen néven mentse le a fájlt
+            link.click(); // elindítjuk a letöltést
+            URL.revokeObjectURL(link.href); // töröljük az ideiglenes linket hogy ne szemeteljen
         })
     }
 }
