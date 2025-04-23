@@ -1,7 +1,19 @@
 /**
- * @callback addSzerzoCallback
- * @param {HTMLTableSectionElement} tbody megkapja a tbody-t
+ * @callback renderTableCallback
+ * @param {Adat[]} 
  * @returns {void}
+ */
+/**
+ * @callback addSzerzoCallback
+ * @param {Adat} 
+ * @returns {void}
+ */
+/**
+ * nagyobbe az adat1 az adat2nél
+ * @callback nagyobbE
+ * @param {Adat} adat1 
+ * @param {Adat} adat2
+ * @returns {boolean}
  */
 class Manager { // egy Manager nevű osztály, kezeli az adatokat
     /**
@@ -14,7 +26,10 @@ class Manager { // egy Manager nevű osztály, kezeli az adatokat
      */
     #addSzerzoCallback; // privát callback függvény, amit meghívunk új adat hozzáadásánál
 
-    #renderTableCallback;
+    /**
+     * @type {renderTableCallback}
+     */
+    #renderTableCallback; // privát változó
 
     constructor() { // konstruktor, ami létrehozza az objektumot
         this.#array = []; // inicializáljuk a privát tömböt üresen
@@ -26,9 +41,11 @@ class Manager { // egy Manager nevű osztály, kezeli az adatokat
     setaddSzerzoCallback(callback) { // beállítjuk a callback függvényt kívülről
         this.#addSzerzoCallback = callback; // eltároljuk a megadott callbacket privát változóban
     }
-
+    /**
+    * @param {Function} callback 
+    */
     setRenderTableCallback(callback){
-        this.#renderTableCallback = callback;
+        this.#renderTableCallback = callback; // privát változóba tároljuk a callbacket
     }
 
     /**
@@ -47,15 +64,6 @@ class Manager { // egy Manager nevű osztály, kezeli az adatokat
         this.#addSzerzoCallback(szerzo); // meghívjuk a callbacket az új adattal
     }
 
-    filter(callback){
-        const eredmeny = []
-        for(const mu of this.#array){
-            if(callback(mu)){
-                eredmeny.push(mu)
-            }
-        }
-        this.#renderTableCallback(eredmeny);
-    }
 
     /**
      * @returns {string} letöltési szöveg
@@ -68,4 +76,31 @@ class Manager { // egy Manager nevű osztály, kezeli az adatokat
         }
         return tartalomTomb.join('\n'); // a sorokat egy szöveggé fűzzük össze sortöréssel elválasztva
     }
+
+    sorbaRendezes() { // buborékrendezést végez a tömbön a megadott feltétel alapján
+        const rendezoArray = []; // létrehozunk egy új tömböt a rendezéshez
+        for (const i of this.#array) { // végigmegyünk az eredeti tömb elemein
+            rendezoArray.push(i); // az elemeket átmásoljuk a rendezoarray tömbbe
+        }
+
+        for (let i = 0; i < rendezoArray.length - 1; i++) { // külső ciklus amely végigmegy a tömb elemein a rendezéshez
+            for (let j = 0; j < rendezoArray.length - i - 1; j++) { // belső ciklus az aktuális résztömb hosszáig
+                if (rendezoArray[j].szerzo.localeCompare(rendezoArray[j + 1].szerzo) > 0) { 
+                    // összehasonlítja a két elem szerző mezőjét localeCompare segítségével
+                    const temp = rendezoArray[j]; // ideiglenesen elmentjük az első elemet egy változóba
+                    rendezoArray[j] = rendezoArray[j + 1]; // az első elem helyére a második kerül
+                    rendezoArray[j + 1] = temp; // a második elem helyére az első kerül
+                }
+            }
+        }
+        this.#renderTableCallback(rendezoArray); // a rendezett tömböt megjelenítjük a callback függvény segítségével
+    }
+    
+    /**
+     * @returns {void}
+     */
+    renderSima() { // megjeleníti az eredeti rendezés nélküli tömböt
+        this.#renderTableCallback(this.#array); // meghívja a callback függvényt az eredeti tömbbel
+    }
+    
 }

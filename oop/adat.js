@@ -35,10 +35,10 @@ class Adat { // egy Adat nevű osztályt definiálunk, ez reprezentál egy adatb
 
     /**
      * @param {string} szerzo - a szerzo neve
-     * @param {string} mufaj - a műfaj
      * @param {string} cim - a cím
+     * @param {string} mufaj - a műfaj
      */
-    constructor(szerzo, mufaj, cim) { // konstruktor, ami létrehoz egy új példányt
+    constructor(szerzo, cim, mufaj) { // konstruktor, ami létrehoz egy új példányt
         this.#szerzo = szerzo; // beállítja a privát szerzo értéket
         this.#mufaj = mufaj; // beállítja a privát műfaj értéket
         this.#cim = cim; // beállítja a privát cim értéket

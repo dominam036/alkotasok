@@ -28,17 +28,15 @@ class Filter extends Area {
             e.preventDefault(); // megakadályozza az alapértelmezett elküldési viselkedést
 
             const filterKey = select.value; // lekéri a kiválasztott mező értékét
-
-            const rendezettArray = [...this.manager.getArray()];
-
-            if (filterKey !== '') { // csak akkor rendez ha a mező ki van választva
-                rendezettArray.sort((a, b) => a[filterKey].localeCompare(b[filterKey])); // betűrendbe állítja a kiválasztott mező alapján
-            }
-
-            this.div.innerHTML = ''; // kiüríti a táblázat jelenlegi tartalmát
-
-            for (const elem of rendezettArray) { // végigmegy a rendezett tömb elemein
-                addRow(elem, this); // hozzáad egy sort a táblázathoz az aktuális elemből
+            if (filterKey === '') { // ellenőrzi hogy a kiválasztott mező üres-e
+                this.manager.renderSima(); // ha üres megjeleníti az alapértelmezett táblázatot
+            } else { // ha nem üres akkor rendezést végez
+                this.manager.sorbaRendezes((adat1, adat2) => { // meghívja a rendezési metódust és megadja a feltételt
+                    if (adat1[filterKey].toLowerCase() > adat2[filterKey].toLowerCase()) { // összehasonlítja a két elem adott mezőjének értékét kisbetűsítve
+                        return true; // ha az első nagyobb visszaadja hogy igaz
+                    }
+                    return false; // különben visszaadja hogy hamis
+                });
             }
         });
     }

@@ -56,10 +56,10 @@ class Table extends Area { // létrehozunk egy Table nevű osztályt, ami az Are
      */
     constructor(cssClass, manager){ // konstruktor, kap egy css class nevet
         super(cssClass, manager); // meghívjuk az Area osztály konstruktorát vele
-        const tabla = this.#makeTabla(); // csinálunk egy table elemet
+        const tbody = this.#makeTabla(); // csinálunk egy tbody elemet
 
         this.manager.setaddSzerzoCallback((mu) => { // arrow function 
-            this.#createMuRow(mu, tabla);
+            this.#createMuRow(mu, tbody); // meghívjuk azt a függvényt ami egy sort csinál
         })
 
         this.manager.setRenderTableCallback((array) => { // callback függvény beállítása a táblázat újrarendereléséhez
@@ -69,7 +69,7 @@ class Table extends Area { // létrehozunk egy Table nevű osztályt, ami az Are
             }
         });
     }
-    #createMuRow(mu, tableBody){
+    #createMuRow(mu, tableBody){ // privát függvény létrehozása ami egy sort csinál az adatokkal
         const tbRow = document.createElement('tr'); // csinálunk egy új sort a táblába
         tableBody.appendChild(tbRow); // belerakjuk a tbody-be amivel a #makeTabla metodus tér vissza
     
