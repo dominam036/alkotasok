@@ -9,3 +9,4 @@ const mezoLista = [ // egy tömb, benne objektumokkal
 const manager = new Manager(); // létrehozzunk egy manager osztálypéldányt
 const table = new Table('table', manager); // létrehozunk egy új 'Table' osztálypéldányt 
 const form = new Form('form', mezoLista, manager); // létrehozunk egy új Form osztálypéldányt 
+const fileUploader = new Upload('upload', manager); // a fájlfeltöltőnk példányosítása

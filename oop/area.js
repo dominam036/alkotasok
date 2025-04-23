@@ -149,6 +149,42 @@ class Form extends Area { // Form nevű osztály, amely az Area osztályból ör
     }
 }
 
+class Upload extends Area { // létrehozunk egy upload nevű osztályt ami örökli az area osztályt
+    /**
+     * 
+     * @param {string} cssClass 
+     * @param {Manager} manager 
+     */
+    constructor(cssClass, manager) { // konstruktor kap egy css osztálynevet meg a managert
+        super(cssClass, manager) // meghívjuk az area konstruktorát ezekkel
+
+        const input = document.createElement('input') // létrehozunk egy input elemet
+        input.id = 'fileinput' // beállítjuk az id-t hogy fileinput legyen
+        input.type = 'file' // beállítjuk a típust fájl feltöltésre
+        this.div.appendChild(input) // hozzáadjuk a divhez amit az area osztályból örököltünk
+
+        input.addEventListener('change', (e) => { // amikor fájlt választanak ki akkor ez lefut
+            const file = e.target.files[0] // lekéri a kiválasztott fájlt
+            const beolvaso = new FileReader() // létrehozunk egy új fájlolvasót
+
+            beolvaso.onload = () => { // amikor betöltötte a fájlt ez fut le
+                const fileLines = beolvaso.result.split('\n') // feldarabolja sorokra
+                const elsoSorNelkul = fileLines.slice(1) // lehagyjuk az első sort mert az a fejléc
+
+                for(const line of elsoSorNelkul){ // végigmegyünk minden soron
+                    const tisztitottSor = line.trim() // leszedjük a felesleges szóközöket
+                    const mezok = tisztitottSor.split(';') // szétvágjuk pontosvesszőknél
+
+                    const adat = new Adat(mezok[0], mezok[1], mezok[2]) // létrehozunk egy új adat objektumot a sor alapján
+                    this.manager.addSzerzo(adat) // hozzáadjuk a managernél a szerzőt
+                }
+            }
+            beolvaso.readAsText(file) // elindítjuk a fájl olvasását szövegként
+        })
+    }
+}
+
+
 class FormField {
     /**
      * @type {string}

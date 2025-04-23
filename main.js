@@ -110,3 +110,47 @@ urlapElem.addEventListener('submit', (e) => { // eseményfigyelő a form beküld
 
 containerDiv.appendChild(tableDiv); // belerakjuk a table divet a containerbe
 containerDiv.appendChild(formDiv); // aztán berakjuk a form divet is
+
+const fileInput = document.createElement('input') // létrehozunk egy új input elemet
+containerDiv.appendChild(fileInput) // hozzáadjuk a containerdiv-hez
+fileInput.id = 'fileinput' // beállítjuk az id-jét fileinput-ra
+fileInput.type = 'file' // típusát fájl feltöltésre állítjuk
+
+fileInput.addEventListener('change', (e) => { // esemény amikor fájlt választanak ki
+    const file = e.target.files[0] // lekérjük a kiválasztott első fájlt
+    const beolvaso = new FileReader() // létrehozunk egy fájlbeolvasó objektumot
+
+    beolvaso.onload = () => { // amikor kész a fájl beolvasása
+        const fileLines = beolvaso.result.split('\n') // feldaraboljuk a fájl tartalmát sorokra
+        const elsoSorNelkul = fileLines.slice(1) // levágjuk az első sort mert az fejléc
+
+        for(const line of elsoSorNelkul){ // végigmegyünk minden soron
+            const tisztitottSor = line.trim() // levágjuk a felesleges szóközöket elöl hátul
+            const mezok = tisztitottSor.split(';') // a sort feldaraboljuk pontosvessző mentén
+
+            const alkotas = { // létrehozunk egy új objektumot az adatokkal
+                szerzo: mezok[0], // szerzo megadasa
+                mufaj: mezok[1], // mufaj megadasa
+                cim: mezok[2] // cim megadasa
+            }
+
+            array.push(alkotas) // hozzáadjuk az objektumot a tömbhöz
+
+            const tableBodyRow = document.createElement('tr') // létrehozunk egy új sort a táblázatba
+            tbody.appendChild(tableBodyRow) // hozzáadjuk a táblázat törzséhez
+
+            const szerzoCell = document.createElement('td') // létrehozunk egy cellát a szerzőnek
+            szerzoCell.textContent = alkotas.szerzo // beállítjuk a szerző nevét cellába
+            tableBodyRow.appendChild(szerzoCell) // hozzáadjuk a sorhoz
+
+            const mufajCell = document.createElement('td') // létrehozunk egy cellát a műfajnak
+            mufajCell.textContent = alkotas.mufaj // beállítjuk a műfajt a cellába
+            tableBodyRow.appendChild(mufajCell) // hozzáadjuk a sorhoz
+
+            const cimCell = document.createElement('td') // létrehozunk egy cellát a címnek
+            cimCell.textContent = alkotas.cim // beállítjuk a címet a cellába
+            tableBodyRow.appendChild(cimCell) // hozzáadjuk a sorhoz
+        }
+    }
+    beolvaso.readAsText(file) // elindítjuk a fájl szövegként való beolvasását
+})
