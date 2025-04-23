@@ -1,0 +1,23 @@
+.container, .containeroop {
+    background-color: green;
+    padding-bottom: 12px;
+}
+
+.table {
+    background-color: aqua;
+}
+
+.form {
+    margin-top: 12px;
+    background-color: pink;
+}
+
+table, tr, th, td {
+    border: 1px solid black;
+    border-collapse: collapse;
+}
+
+.field{
+    margin-bottom: 12px;
+    background-color: antiquewhite;
+}
