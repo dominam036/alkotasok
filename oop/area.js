@@ -130,17 +130,22 @@ class Form extends Area { // Form nevű osztály, amely az Area osztályból ör
 
         urlapElem.addEventListener('submit', (e)=> { // eseménykezelő ami a gomb lenyomására aktiválódik
             e.preventDefault(); // megakadályozza az alapértelmezett viselkedést
-            const inputFieldList = e.target.querySelectorAll('input'); // lekéri az összes input mezőt
             const valueObject = {}; // létrehoz egy üres objektumot
-        
-            for(const inputField of inputFieldList){ // bejárjuk a inputFieldListet
-                valueObject[inputField.id] = inputField.value; // minden input id alapján hozzáadja az értéket az objektumhoz
+            let validE = true; // validE true lesz alapból
+            for(const errorField of this.#tombInput){ // vegigmegyünk az összes FormField mezőn
+                errorField.error = ''; // töröljük az esetlegesen korabban megjelenített hibaüzenetet
+                if(errorField.value === ''){ // ha az adott mező üres
+                    errorField.error = 'Add meg ezt is!'; // eállítjuk a hibaüzenetet a mező alá
+                    validE = false; // az validE-t hamisra állítjuk
+                }
+                valueObject[errorField.id] = errorField.value; // Az objektumba mentjük a mező azonosítója alapján az értéket
             }
-        
-            const szerzo = new Adat(valueObject.szerzo, valueObject.mufaj, valueObject.cim); // új adat objektumot hoz létre a beírt értékekkel
-            this.manager.addSzerzo(szerzo); // hozzáadja az adatot a managerhez
+
+            if(validE){ // ha true maradt
+                const szerzo = new Adat(valueObject.szerzo, valueObject.mufaj, valueObject.cim); // új adat objektumot hoz létre a beírt értékekkel
+                this.manager.addSzerzo(szerzo); // hozzáadja az adatot a managerhez
+            }
         });
-        
     }
 }
 
