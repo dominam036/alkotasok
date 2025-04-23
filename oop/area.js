@@ -104,29 +104,24 @@ class Table extends Area { // létrehozunk egy Table nevű osztályt, ami az Are
 
 class Form extends Area { // Form nevű osztály, amely az Area osztályból öröklődik
     /**
+     * @type {FormField[]}
+     */
+    #tombInput // privát változó
+    /**
      * @param {string} cssClass 
      * @param {{fieldid:string,fieldLabel:string}[]} mezoLista
      * @param {Manager} manager
      */
     constructor(cssClass, mezoLista, manager) { // konstruktor, megkapja a css osztály nevét, egy tömböt és a managert
         super(cssClass, manager); // meghívja az Area osztály konstruktorát a cssClass paraméterrel
-
+        this.#tombInput = []; // a tombInputot inicializáljuk
         const urlapElem = document.createElement('form'); // létrehozunk egy <form> HTML elemet
         this.div.appendChild(urlapElem); // a létrehozott form-ot hozzáadjuk a div-hez, amit az Area osztályban hoztunk létre
 
         for (const mezoObjektum of mezoLista) { // végigmegyünk minden mező objektumon a tömbben
-            const mezoDiv = makeDiv('field'); // létrehozunk egy div-et a 'field' class névvel 
-            urlapElem.appendChild(mezoDiv); // a div-et hozzáadjuk az űrlaphoz
-
-            const label = document.createElement('label'); // létrehozunk egy label elemet
-            label.htmlFor = mezoObjektum.fieldid; // beállítjuk, hogy melyik inputhoz tartozik ez a label 
-            label.textContent = mezoObjektum.fieldLabel; // beállítjuk a label szövegét
-            mezoDiv.appendChild(label); // a label-t hozzáadjuk a div-hez
-
-            const input = document.createElement('input'); // létrehozunk egy input mezőt
-            input.id = mezoObjektum.fieldid; // beállítjuk az input mező id-jét
-            mezoDiv.appendChild(document.createElement('br')); // beszúrunk egy sortörést a label és az input közé
-            mezoDiv.appendChild(input); // hozzáadjuk az input mezőt is a div-hez
+            const formField = new FormField(mezoObjektum.fieldid, mezoObjektum.fieldLabel); // létrehozunk egy új FormField objektumot az adott mező alapján
+            this.#tombInput.push(formField); // eltároljuk a mezőt az tombInputban tömbben
+            urlapElem.appendChild(formField.getDiv()); // hozzáadjuk a mezőhöz tartozó HTML elemeket a form-hoz
         }
 
         const hozzaadasGomb = document.createElement('button'); // létrehozunk egy button gomb elemet
@@ -146,5 +141,80 @@ class Form extends Area { // Form nevű osztály, amely az Area osztályból ör
             this.manager.addSzerzo(szerzo); // hozzáadja az adatot a managerhez
         });
         
+    }
+}
+
+class FormField {
+    /**
+     * @type {string}
+     */
+    #id; // privát mező az azonosító tárolására
+    /**
+     * @type {HTMLElement}
+     */
+    #inputElem; // privát mező az input elemre
+    /**
+     * @type {HTMLElement}
+     */
+    #labelElem; // privát mező a label elemre
+    /**
+     * @type {HTMLElement}
+     */
+    #hibaElem; // privát mező a hibát megjelenítő span elemre
+
+    /** 
+     * @returns {string} a mező azonosítója
+     */
+    get id(){ // get metódus az id értékének eléréséhez
+        return this.#id; // id visszaadása
+    }
+
+    /** 
+     * @returns {string} a mező értéke
+     */
+    get value(){ // get metódus az input mező értékének eléréséhez
+        return this.#inputElem.value; // input mezot visszaadjuk
+    }
+
+    /** 
+     * @param {string} value a megjelenítendő hibaüzenet
+     */
+    set error(value){ // set metódus a hibaüzenet beállításához
+        this.#hibaElem.textContent = value; // error üzenetet beállítjuk
+    }
+
+    /** 
+     * @param {string} id a mező azonosítója
+     * @param {string} labelContent a mezőhöz tartozó szöveg
+     */
+    constructor(id, labelContent){ // konstruktor bemeneti paraméterként kap egy azonosítót és egy címkefeliratot
+        this.#id = id; // elmentjük az id értékét privát változóba
+        this.#labelElem = document.createElement('label'); // létrehozunk egy label elemet
+        this.#labelElem.htmlFor = id; // beállítjuk hogy melyik inputhoz tartozik a label
+        this.#labelElem.textContent = labelContent; // beállítjuk a címke szövegét
+
+        this.#inputElem = document.createElement('input'); // létrehozunk egy input elemet
+        this.#inputElem.id = id; // beállítjuk az input id értékét
+
+        this.#hibaElem = document.createElement('span'); // létrehozunk egy span elemet hibaüzenethez
+        this.#hibaElem.className = 'error'; // beállítjuk az osztály nevét error-ra
+    }
+
+    /**
+     * @returns {HTMLDivElement}
+     */
+    getDiv(){ // metódus ami visszaad egy divet az összes mezővel együtt
+        const div = makeDiv('field'); // létrehozunk egy field osztályú divet
+
+        const br1 = document.createElement('br'); // első sortörés
+        const br2 = document.createElement('br'); // második sortörés
+
+        const elemek = [this.#labelElem, br1, this.#inputElem, br2, this.#hibaElem]; // elemeket egy tömbbe rakjuk
+
+        for(const elem of elemek){ // végigmegyünk az összes elemeken
+            div.appendChild(elem); // hozzáadjuk a divhez az aktuális elemet
+        }
+
+        return div; // visszatérünk a divvel
     }
 }
