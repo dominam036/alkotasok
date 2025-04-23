@@ -89,7 +89,7 @@ class Table extends Area { // létrehozunk egy Table nevű osztályt, ami az Are
         const theadRow = document.createElement('tr'); // létrehozunk egy sort a fejléchez
         thead.appendChild(theadRow); // hozzáadjuk a sort a thead-be
 
-        const fejlecNevek = ['Szerző', 'műfaj', 'cím']; // fejléc mezők szövegeit tároljuk itt egy tömbben
+        const fejlecNevek = ['Szerző', 'cim', 'műfaj']; // fejléc mezők szövegeit tároljuk itt egy tömbben
         for(const fejlec of fejlecNevek){ // végigmegyünk a tömb elemein
             const theadCella = document.createElement('th'); // csinálunk egy th elemet
             theadCella.innerText = fejlec; // beleírjuk a szöveget
@@ -187,7 +187,7 @@ class UploadDownload extends Area { // létrehozunk egy upload nevű osztályt a
         this.div.appendChild(letoltesGomb); // hozzáadjuk a containerhez a gombot
 
         letoltesGomb.addEventListener('click', () => { // ha rákattintanak a gombra ez lefut
-            const link = document.createElement('a'); // csinálunk egy <a> elemet ami majd letöltésre lesz        
+            const link = document.createElement('a'); // csinálunk egy <a> elemet ami majd letöltésre lesz
             const tartalom = this.manager.generateOutputString(); // lekérjük a managerből a letöltendő szöveget
             const file = new Blob([tartalom]) // csinálunk egy blob fájlt a szövegből
             link.href = URL.createObjectURL(file); // generálunk egy ideiglenes fájlelérési linket
