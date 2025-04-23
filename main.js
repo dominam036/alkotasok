@@ -154,3 +154,26 @@ fileInput.addEventListener('change', (e) => { // esemény amikor fájlt választ
     }
     beolvaso.readAsText(file) // elindítjuk a fájl szövegként való beolvasását
 })
+
+const letoltesGomb = document.createElement('button'); // csinálunk egy gombot
+letoltesGomb.textContent = 'Letöltés'; // beállítjuk a gomb szövegét hogy letöltés
+containerDiv.appendChild(letoltesGomb); // hozzáadjuk a containerhez a gombot
+
+letoltesGomb.addEventListener('click', () => { // ha rákattintanak a gombra ez lefut
+    const link = document.createElement('a'); // csinálunk egy <a> elemet ami majd letöltésre lesz
+
+    const tartalomTomb = ['szerző;műfaj;cím'] // létrehozunk egy tömböt fejléc sorral
+
+    for(const mu of array){ // végigmegyünk az adatokon
+        tartalomTomb.push(`${mu.szerzo};${mu.mufaj};${mu.cim}`); // összefűzzük az adatokat és betoljuk a tömbbe
+    }
+
+    const tartalom = tartalomTomb.join('\n'); // a tömb elemeit összerakjuk egy hosszú szöveggé sortöréssel
+
+    const file = new Blob([tartalom]) // csinálunk egy blob fájlt a szövegből
+
+    link.href = URL.createObjectURL(file); // generálunk egy ideiglenes fájlelérési linket
+    link.download = 'newdata.csv' // beállítjuk hogy milyen néven mentse le a fájlt
+    link.click(); // elindítjuk a letöltést
+    URL.revokeObjectURL(link.href); // töröljük az ideiglenes linket hogy ne szemeteljen
+})
